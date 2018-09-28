@@ -2,6 +2,7 @@
 
 const rp = require('request-promise')
 const cheerio = require('cheerio')
+const groupBy = require('lodash.groupby')
 
 const { argv } = require('yargs')
   .usage('kgb-scrape')
@@ -42,12 +43,12 @@ async function main(argv) {
   }
   const reviews = await Promise.all(pageRequests).then(flatten)
   // Aggregate and process results
-  console.log(reviews)
+  calculatePositivityScores(reviews)
 }
 
 const flatten = values => [].concat.apply([], values)
 
-function extractDataFromMarkup($) {
+const extractDataFromMarkup = $ => {
   const reviews = $('.review-entry')
     .map((i, review) => {
       const $review = $(review)
@@ -80,8 +81,28 @@ function extractDataFromMarkup($) {
   return Promise.resolve(reviews)
 }
 
+const calculatePositivityScores = reviewsSrc => {
+  const userReviews = groupBy(reviewsSrc, 'user')
+  const positivityScores = Object.entries(userReviews).reduce(
+    (result, [user, reviews]) => {
+      const score = reviews.reduce(
+        (acc, { ratings, numEmployeesWorkedWith, helpfulVotes }) => {
+          const ratingsSum = ratings.reduce((a, b) => a + b, 0)
+          return acc + ratingsSum + numEmployeesWorkedWith + helpfulVotes
+        },
+        0
+      )
+      result[user] = score
+      return result
+    },
+    {}
+  )
+  return positivityScores
+}
+
 main(argv)
 
 module.exports = {
   extractDataFromMarkup,
+  calculatePositivityScores,
 }

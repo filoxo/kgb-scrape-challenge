@@ -1,8 +1,9 @@
 import cheerio from 'cheerio'
 import test from 'ava'
-import { extractDataFromMarkup } from './index'
+import { extractDataFromMarkup, calculatePositivityScores } from './index'
 
-const TEST_MARKUP = `<div class="review-entry col-xs-12 text-left pad-none pad-top-lg  border-bottom-teal-lt">
+test('test function that extracts data from review markup', async t => {
+  const TEST_MARKUP = `<div class="review-entry col-xs-12 text-left pad-none pad-top-lg  border-bottom-teal-lt">
 <a name="r4988625"></a>
 <div class="col-xs-12 col-sm-3 pad-left-none text-center review-date margin-bottom-md">
     <div class="italic col-xs-6 col-sm-12 pad-none margin-none font-20">September 26, 2018</div>
@@ -133,7 +134,6 @@ const TEST_MARKUP = `<div class="review-entry col-xs-12 text-left pad-none pad-t
 
 </div>`
 
-test('test function that extracts data from review markup', async t => {
   const data = await extractDataFromMarkup(cheerio.load(TEST_MARKUP))
 
   t.deepEqual(data, [
@@ -142,10 +142,41 @@ test('test function that extracts data from review markup', async t => {
       helpfulVotes: 0,
       numEmployeesWorkedWith: 1,
       ratings: [50, 50, 50, 50, 50],
-      user: 'Lawrence5.00',
+      user: 'Lawrence',
     },
   ])
 })
-test.todo('test function summarizes')
-test.todo('test function sorts review data')
+test('reviews are aggregated into single score', t => {
+  const input = [
+    {
+      date: 'September 26, 2018',
+      helpfulVotes: 0,
+      numEmployeesWorkedWith: 1,
+      ratings: [50, 50, 50, 50, 50],
+      user: 'Lawrence',
+    },
+    {
+      date: 'September 26, 2018',
+      helpfulVotes: 0,
+      numEmployeesWorkedWith: 2,
+      ratings: [50, 50, 50, 50, 50],
+      user: 'velva.mccann',
+    },
+    {
+      date: 'September 25, 2018',
+      helpfulVotes: 0,
+      numEmployeesWorkedWith: 1,
+      ratings: [50, 50, 50, 50, 50],
+      user: 'Preuninger 37',
+    },
+  ]
+
+  const expected = {
+    Lawrence: 251,
+    'velva.mccann': 252,
+    'Preuninger 37': 251,
+  }
+  const output = calculatePositivityScores(input)
+  t.deepEqual(output, expected)
+})
 test.todo('test function that returns top accounts')
