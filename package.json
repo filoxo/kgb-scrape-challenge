@@ -1,7 +1,9 @@
 {
   "name": "kgb-scrape-challenge",
   "version": "0.0.1",
-  "main": "index.js",
+  "bin": {
+    "kgb-scrape": "index.js"
+  },
   "repository": "git@github.com:filoxo/kgb-scrape-challenge.git",
   "author": "Carlos Filoteo <c.filoteo@live.com>",
   "license": "none",
