@@ -171,11 +171,11 @@ test('reviews are aggregated into single score', t => {
     },
   ]
 
-  const expected = {
-    Lawrence: 251,
-    'velva.mccann': 252,
-    'Preuninger 37': 251,
-  }
+  const expected = [
+    { user: 'Lawrence', score: 251 },
+    { user: 'velva.mccann', score: 252 },
+    { user: 'Preuninger 37', score: 251 },
+  ]
   const output = calculatePositivityScores(input)
   t.deepEqual(output, expected)
 })

@@ -92,10 +92,9 @@ const calculatePositivityScores = reviewsSrc => {
         },
         0
       )
-      result[user] = score
-      return result
+      return result.concat([{ user, score }])
     },
-    {}
+    []
   )
   return positivityScores
 }
