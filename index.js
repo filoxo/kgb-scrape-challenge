@@ -51,29 +51,34 @@ function extractDataFromMarkup($) {
     .map((i, review) => {
       const $review = $(review)
       const date = $review.find('.review-date div:first-child').text()
-      const user = $review
-        .find('.review-wrapper div:nth-child(1) span')
-        .text()
-        .replace('- ', '')
+      const helpfulVotes = parseInt($review.find('.helpful-count').text(), 10)
+      const numEmployeesWorkedWith = $review.find('.review-employee').length
       const ratings = $review
         .find('.review-ratings-all [class^="rating-"]')
-        .map(function extractRatingFromClass(i, elem) {
+        .map(function extractRatingFromClassStr(i, elem) {
           const classStr = $(elem).attr('class')
           const ratingStr = /\d\d/g.exec(classStr)[0]
           const rating = parseInt(ratingStr, 10)
           return rating
         })
         .toArray()
-      const numEmployeesWorkedWith = $review.find('.review-employee').length
-      const helpfulVotes = parseInt($review.find('.helpful-count').text(), 10)
+      const user = $review
+        .find('.review-wrapper div:nth-child(1) span')
+        .text()
+        .replace('- ', '')
+
       return {
         date,
-        user,
-        ratings,
-        numEmployeesWorkedWith,
         helpfulVotes,
+        numEmployeesWorkedWith,
+        ratings,
+        user,
       }
     })
     .get()
-  return reviews
+  return Promise.resolve(reviews)
+}
+
+module.exports = {
+  extractDataFromMarkup,
 }
