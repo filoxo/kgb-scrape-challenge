@@ -3,8 +3,9 @@
 Identifies "overly positive" endorsements using the following criteria:
 
 - Average scores,
-- Number of employees worked with, and
-- Total count of reviews submitted
+- Number of employees worked with, 
+- Number of helpful votes,
+- and Total count of reviews submitted
 
 ## Retrieving results
 
