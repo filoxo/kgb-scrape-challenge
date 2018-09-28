@@ -64,7 +64,7 @@ function extractDataFromMarkup($) {
         })
         .toArray()
       const user = $review
-        .find('.review-wrapper div:nth-child(1) span')
+        .find('.review-wrapper > div:nth-child(1) span')
         .text()
         .replace('- ', '')
 
