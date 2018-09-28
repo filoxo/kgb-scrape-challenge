@@ -4,7 +4,7 @@ Identifies "overly positive" endorsements using the following criteria:
 
 - Average scores,
 - Number of employees worked with, and
-- Most recent
+- Total count of reviews submitted
 
 ## Retrieving results
 
