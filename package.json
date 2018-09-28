@@ -8,10 +8,23 @@
   "author": "Carlos Filoteo <c.filoteo@live.com>",
   "license": "none",
   "private": true,
+  "scripts": {
+    "format": "prettier **/*.js --write --no-semi --single-quote --trailing-comma es5 --tab-width 2"
+  },
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
     "request": "^2.88.0",
     "request-promise": "^4.2.2",
     "yargs": "^12.0.2"
+  },
+  "devDependencies": {
+    "husky": "^1.0.1",
+    "lint-staged": "^7.3.0",
+    "prettier": "^1.14.3"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run format"
+    }
   }
 }
