@@ -1,6 +1,10 @@
 import cheerio from 'cheerio'
 import test from 'ava'
-import { extractDataFromMarkup, calculatePositivityScores } from './index'
+import {
+  extractDataFromMarkup,
+  calculatePositivityScores,
+  getTopOffenders,
+} from './index'
 
 test('test function that extracts data from review markup', async t => {
   const TEST_MARKUP = `<div class="review-entry col-xs-12 text-left pad-none pad-top-lg  border-bottom-teal-lt">
@@ -179,4 +183,19 @@ test('reviews are aggregated into single score', t => {
   const output = calculatePositivityScores(input)
   t.deepEqual(output, expected)
 })
-test.todo('test function that returns top accounts')
+test('returns top offenders', t => {
+  const assertDescendingOrder = arr =>
+    arr.every((item, i, arr) => {
+      if (i === 0) return true
+      const { score } = item
+      const { score: prevScore } = arr[i - 1]
+      return prevScore >= score
+    })
+  const input = [
+    { user: 'Lawrence', score: 251 },
+    { user: 'velva.mccann', score: 252 },
+    { user: 'Preuninger 37', score: 251 },
+  ]
+  const output = getTopOffenders(input, 3)
+  t.is(assertDescendingOrder(output), true)
+})

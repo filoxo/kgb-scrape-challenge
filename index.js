@@ -3,6 +3,7 @@
 const rp = require('request-promise')
 const cheerio = require('cheerio')
 const groupBy = require('lodash.groupby')
+const sortBy = require('lodash.sortby')
 
 const { argv } = require('yargs')
   .usage('kgb-scrape')
@@ -43,7 +44,10 @@ async function main(argv) {
   }
   const reviews = await Promise.all(pageRequests).then(flatten)
   // Aggregate and process results
-  calculatePositivityScores(reviews)
+  const scores = calculatePositivityScores(reviews)
+  // Sort and
+  const topOffenders = getTopOffenders(scores, top)
+  return console.log(topOffenders)
 }
 
 const flatten = values => [].concat.apply([], values)
@@ -99,9 +103,15 @@ const calculatePositivityScores = reviewsSrc => {
   return positivityScores
 }
 
+const getTopOffenders = (scores, numOfTopOffenders) => {
+  const sortedScores = sortBy(scores, 'score').reverse()
+  return sortedScores.slice(0, numOfTopOffenders)
+}
+
 main(argv)
 
 module.exports = {
   extractDataFromMarkup,
   calculatePositivityScores,
+  getTopOffenders,
 }
