@@ -34,26 +34,46 @@ function main(argv) {
   const reviews = []
   for (let i = 0; i < pages; i++) {
     rp(options)
-      .then(function($) {
-        const reviews = $('.review-entry')
-        console.log(reviews)
-        /** 
-                    CUSTOMER SERVICE	
-                    QUALITY OF WORK	
-                    FRIENDLINESS	
-                    PRICING	
-                    OVERALL EXPERIENCE	
-                    RECOMMEND DEALER
-                **/
-        // Employees worked with, and their ratings
-        // other employees wored with
-        // was helpful count
-        // Date (most recent?)
-      })
+      .then(extractDataFromMarkup)
       .catch(function(err) {
         // Crawling failed or Cheerio choked...
+      })
+      .then(function(data) {
+        console.log(data)
       })
   }
 }
 
 main(argv)
+
+function extractDataFromMarkup($) {
+  const reviews = $('.review-entry')
+    .map((i, review) => {
+      const $review = $(review)
+      const date = $review.find('.review-date div:first-child').text()
+      const user = $review
+        .find('.review-wrapper div:nth-child(1) span')
+        .text()
+        .replace('- ', '')
+      const ratings = $review
+        .find('.review-ratings-all [class^="rating-"]')
+        .map(function extractRatingFromClass(i, elem) {
+          const classStr = $(elem).attr('class')
+          const ratingStr = /\d\d/g.exec(classStr)[0]
+          const rating = parseInt(ratingStr, 10)
+          return rating
+        })
+        .toArray()
+      const numEmployeesWorkedWith = $review.find('.review-employee').length
+      const helpfulVotes = parseInt($review.find('.helpful-count').text(), 10)
+      return {
+        date,
+        user,
+        ratings,
+        numEmployeesWorkedWith,
+        helpfulVotes,
+      }
+    })
+    .get()
+  return reviews
+}
