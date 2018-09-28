@@ -23,28 +23,29 @@ const { argv } = require('yargs')
   })
   .help()
 
-const options = {
-  uri:
-    'https://www.dealerrater.com/dealer/McKaig-Chevrolet-Buick-A-Dealer-For-The-People-dealer-reviews-23685/?filter=ONLY_POSITIVE#link',
+const options = pgNum => ({
+  uri: `https://www.dealerrater.com/dealer/McKaig-Chevrolet-Buick-A-Dealer-For-The-People-dealer-reviews-23685/page${pgNum}/?filter=ONLY_POSITIVE#link`,
   transform: body => cheerio.load(body),
-}
+})
 
-function main(argv) {
+async function main(argv) {
   const { pages, top } = argv
-  const reviews = []
-  for (let i = 0; i < pages; i++) {
-    rp(options)
-      .then(extractDataFromMarkup)
-      .catch(function(err) {
-        // Crawling failed or Cheerio choked...
-      })
-      .then(function(data) {
-        console.log(data)
-      })
+  const pageRequests = []
+  for (let i = 1; i <= pages; i++) {
+    pageRequests.push(
+      rp(options(i))
+        .then(extractDataFromMarkup)
+        .catch(function(err) {
+          // Crawling failed or Cheerio choked...
+        })
+    )
   }
+  const reviews = await Promise.all(pageRequests).then(flatten)
+  // Aggregate and process results
+  console.log(reviews)
 }
 
-main(argv)
+const flatten = values => [].concat.apply([], values)
 
 function extractDataFromMarkup($) {
   const reviews = $('.review-entry')
@@ -78,6 +79,8 @@ function extractDataFromMarkup($) {
     .get()
   return Promise.resolve(reviews)
 }
+
+main(argv)
 
 module.exports = {
   extractDataFromMarkup,
